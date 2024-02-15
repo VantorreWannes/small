@@ -1,4 +1,4 @@
-use bitstream_io::ToBitStream;
+use bitstream_io::{FromBitStream, ToBitStream};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct SmlHeader {
@@ -19,6 +19,7 @@ pub struct SmlHeader {
 }
 
 impl SmlHeader {
+    const BITS: u32 = u8::BITS - 1;
     pub fn new(
         char: u8,
         i8: u8,
@@ -63,21 +64,45 @@ impl ToBitStream for SmlHeader {
     where
         Self: Sized,
     {
-        const BITS: u32 = u8::BITS - 1;
-        writer.write(BITS, self.bool)?;
-        writer.write(BITS, self.char)?;
-        writer.write(BITS, self.i8)?;
-        writer.write(BITS, self.i16)?;
-        writer.write(BITS, self.i32)?;
-        writer.write(BITS, self.i64)?;
-        writer.write(BITS, self.i128)?;
-        writer.write(BITS, self.u8)?;
-        writer.write(BITS, self.u16)?;
-        writer.write(BITS, self.u32)?;
-        writer.write(BITS, self.u64)?;
-        writer.write(BITS, self.u128)?;
-        writer.write(BITS, self.f32)?;
-        writer.write(BITS, self.f64)?;
+        writer.write(Self::BITS, self.bool)?;
+        writer.write(Self::BITS, self.char)?;
+        writer.write(Self::BITS, self.i8)?;
+        writer.write(Self::BITS, self.i16)?;
+        writer.write(Self::BITS, self.i32)?;
+        writer.write(Self::BITS, self.i64)?;
+        writer.write(Self::BITS, self.i128)?;
+        writer.write(Self::BITS, self.u8)?;
+        writer.write(Self::BITS, self.u16)?;
+        writer.write(Self::BITS, self.u32)?;
+        writer.write(Self::BITS, self.u64)?;
+        writer.write(Self::BITS, self.u128)?;
+        writer.write(Self::BITS, self.f32)?;
+        writer.write(Self::BITS, self.f64)?;
         Ok(())
+    }
+}
+
+impl FromBitStream for SmlHeader {
+    type Error = std::io::Error;
+
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
+    where
+        Self: Sized {
+        Ok(Self {
+            bool: r.read(Self::BITS)?,
+            char: r.read(Self::BITS)?,
+            i8: r.read(Self::BITS)?,
+            i16: r.read(Self::BITS)?,
+            i32: r.read(Self::BITS)?,
+            i64: r.read(Self::BITS)?,
+            i128: r.read(Self::BITS)?,
+            u8: r.read(Self::BITS)?,
+            u16: r.read(Self::BITS)?,
+            u32: r.read(Self::BITS)?,
+            u64: r.read(Self::BITS)?,
+            u128: r.read(Self::BITS)?,
+            f32: r.read(Self::BITS)?,
+            f64: r.read(Self::BITS)?,
+        })
     }
 }
