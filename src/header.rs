@@ -2,7 +2,7 @@ use std::cmp::max;
 
 use bitstream_io::{FromBitStream, ToBitStream};
 
-#[derive(Debug, PartialEq, Eq, Clone, Default)]
+#[derive(Debug, PartialEq, Eq, Clone, Default, Copy)]
 pub struct SmlHeader {
     bool: u8,
     char: u8,
@@ -97,7 +97,6 @@ impl FromBitStream for SmlHeader {
         };
         reader.byte_align();
         Ok(sml_header)
-
     }
 }
 
