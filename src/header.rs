@@ -1,6 +1,6 @@
 use bitstream_io::{FromBitStream, ToBitStream};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub struct SmlHeader {
     bool: u8,
     char: u8,
@@ -21,7 +21,6 @@ pub struct SmlHeader {
 impl SmlHeader {
     const BITS: u32 = u8::BITS - 1;
 }
-
 
 impl ToBitStream for SmlHeader {
     type Error = std::io::Error;
@@ -56,7 +55,8 @@ impl FromBitStream for SmlHeader {
 
     fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
     where
-        Self: Sized {
+        Self: Sized,
+    {
         Ok(Self {
             bool: r.read(Self::BITS)?,
             char: r.read(Self::BITS)?,
@@ -76,7 +76,7 @@ impl FromBitStream for SmlHeader {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub struct SmlHeaderBuilder {
     char: Option<u8>,
     i16: Option<u8>,
@@ -112,67 +112,80 @@ impl SmlHeaderBuilder {
         }
     }
 
-    pub fn with_char_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_char_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.char = Some(bits);
         self
     }
 
-    pub fn with_i8_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_i8_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.i8 = Some(bits);
         self
     }
 
-    pub fn with_i16_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_i16_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.i16 = Some(bits);
         self
     }
 
-    pub fn with_i32_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_i32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.i32 = Some(bits);
         self
     }
 
-    pub fn with_i64_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_i64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.i64 = Some(bits);
         self
     }
 
-    pub fn with_i128_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_i128_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.i128 = Some(bits);
         self
     }
 
-    pub fn with_u8_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_u8_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.u8 = Some(bits);
         self
     }
 
-    pub fn with_u16_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_u16_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.u16 = Some(bits);
         self
     }
 
-    pub fn with_u32_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_u32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.u32 = Some(bits);
         self
     }
 
-    pub fn with_u64_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_u64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.u64 = Some(bits);
         self
     }
 
-    pub fn with_u128_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_u128_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.u128 = Some(bits);
         self
     }
 
-    pub fn with_f32_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_f32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.f32 = Some(bits);
         self
     }
 
-    pub fn with_f64_size(&mut self, bits: u8) -> &mut Self {
+    pub fn with_f64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
         self.f64 = Some(bits);
         self
     }
@@ -200,5 +213,37 @@ impl SmlHeaderBuilder {
 impl From<SmlHeaderBuilder> for SmlHeader {
     fn from(builder: SmlHeaderBuilder) -> Self {
         builder.to_sml_header()
+    }
+}
+
+#[cfg(test)]
+mod sml_header_tests {
+    use super::*;
+
+    #[test]
+    fn sml_header_builder() {
+        let sml_header: SmlHeader = SmlHeaderBuilder::new()
+            .with_char_size(10)
+            .with_u8_size(8)
+            .into();
+        assert_eq!(
+            sml_header,
+            SmlHeader {
+                bool: 1,
+                char: 10,
+                i8: 0,
+                i16: 0,
+                i32: 0,
+                i64: 0,
+                i128: 0,
+                u8: 8,
+                u16: 0,
+                u32: 0,
+                u64: 0,
+                u128: 0,
+                f32: 0,
+                f64: 0,
+            }
+        );
     }
 }
