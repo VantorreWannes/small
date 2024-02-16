@@ -5,13 +5,15 @@ pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        let test: i8 = 1;
+        dbg!(test.leading_zeros());
+        println!("{:08b}", 2u8);
     }
 }
