@@ -1,5 +1,5 @@
 # small
-File format for storing lots of data in a super small format. May be slow to read and write.
+File format for storing lots of data in a super small format. Slow to read and write.
 
 ## .sml type layout
 ```
@@ -18,7 +18,7 @@ u128: x bits,
 f32: x bits,
 f64: x bits,
 array<x>: [x; u8],
-struct: {X, Y, Z, ...},
+struct: bool && {X, Y, Z, ...},
 option<x>: {bool, x} || {bool},
 ```
 
@@ -35,34 +35,35 @@ u16: x bits,
 u32: x bits,
 u64: x bits,
 u128: x bits,
-char: x bits,
 f32: x bits,
 f64: x bits,
 ---
-bool,
-[char; u8],
-[char; u8],
-[char; u8],
-[
-    {
-        bool,
-        [char; u8],
-        [char; u8],
-        option<f32>,
-    },
-    {
-        bool,
-        [char; u8],
-        [char; u8],
-        option<f32>,
-    },
-    {
-        bool,
-        [char; u8],
-        [char; u8],
-        option<f32>,
-    },
-    u8,
-]
-option<{[char; u8], i16}>
+{
+    bool,
+    [char; u8],
+    [char; u8],
+    [char; u8],
+    [
+        {
+            bool,
+            [char; u8],
+            [char; u8],
+            option<f32>,
+        },
+        {
+            bool,
+            [char; u8],
+            [char; u8],
+            option<f32>,
+        },
+        {
+            bool,
+            [char; u8],
+            [char; u8],
+            option<f32>,
+        },
+        u8,
+    ]
+    option<{[char; u8], i16}>
+}
 ```

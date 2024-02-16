@@ -20,39 +20,8 @@ pub struct SmlHeader {
 
 impl SmlHeader {
     const BITS: u32 = u8::BITS - 1;
-    pub fn new(
-        char: u8,
-        i8: u8,
-        i16: u8,
-        i32: u8,
-        i64: u8,
-        i128: u8,
-        u8: u8,
-        u16: u8,
-        u32: u8,
-        u64: u8,
-        u128: u8,
-        f32: u8,
-        f64: u8,
-    ) -> Self {
-        Self {
-            bool: 1,
-            char,
-            i8,
-            i16,
-            i32,
-            i64,
-            i128,
-            u8,
-            u16,
-            u32,
-            u64,
-            u128,
-            f32,
-            f64,
-        }
-    }
 }
+
 
 impl ToBitStream for SmlHeader {
     type Error = std::io::Error;
@@ -104,5 +73,132 @@ impl FromBitStream for SmlHeader {
             f32: r.read(Self::BITS)?,
             f64: r.read(Self::BITS)?,
         })
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct SmlHeaderBuilder {
+    char: Option<u8>,
+    i16: Option<u8>,
+    i8: Option<u8>,
+    i64: Option<u8>,
+    i32: Option<u8>,
+    i128: Option<u8>,
+    u8: Option<u8>,
+    u16: Option<u8>,
+    u32: Option<u8>,
+    u64: Option<u8>,
+    u128: Option<u8>,
+    f32: Option<u8>,
+    f64: Option<u8>,
+}
+
+impl SmlHeaderBuilder {
+    pub fn new() -> Self {
+        Self {
+            char: None,
+            i16: None,
+            i8: None,
+            i64: None,
+            i32: None,
+            i128: None,
+            u8: None,
+            u16: None,
+            u32: None,
+            u64: None,
+            u128: None,
+            f32: None,
+            f64: None,
+        }
+    }
+
+    pub fn with_char_size(&mut self, bits: u8) -> &mut Self {
+        self.char = Some(bits);
+        self
+    }
+
+    pub fn with_i8_size(&mut self, bits: u8) -> &mut Self {
+        self.i8 = Some(bits);
+        self
+    }
+
+    pub fn with_i16_size(&mut self, bits: u8) -> &mut Self {
+        self.i16 = Some(bits);
+        self
+    }
+
+    pub fn with_i32_size(&mut self, bits: u8) -> &mut Self {
+        self.i32 = Some(bits);
+        self
+    }
+
+    pub fn with_i64_size(&mut self, bits: u8) -> &mut Self {
+        self.i64 = Some(bits);
+        self
+    }
+
+    pub fn with_i128_size(&mut self, bits: u8) -> &mut Self {
+        self.i128 = Some(bits);
+        self
+    }
+
+    pub fn with_u8_size(&mut self, bits: u8) -> &mut Self {
+        self.u8 = Some(bits);
+        self
+    }
+
+    pub fn with_u16_size(&mut self, bits: u8) -> &mut Self {
+        self.u16 = Some(bits);
+        self
+    }
+
+    pub fn with_u32_size(&mut self, bits: u8) -> &mut Self {
+        self.u32 = Some(bits);
+        self
+    }
+
+    pub fn with_u64_size(&mut self, bits: u8) -> &mut Self {
+        self.u64 = Some(bits);
+        self
+    }
+
+    pub fn with_u128_size(&mut self, bits: u8) -> &mut Self {
+        self.u128 = Some(bits);
+        self
+    }
+
+    pub fn with_f32_size(&mut self, bits: u8) -> &mut Self {
+        self.f32 = Some(bits);
+        self
+    }
+
+    pub fn with_f64_size(&mut self, bits: u8) -> &mut Self {
+        self.f64 = Some(bits);
+        self
+    }
+
+    pub fn to_sml_header(&self) -> SmlHeader {
+        SmlHeader {
+            bool: 1,
+            char: self.char.unwrap_or(0),
+            i8: self.i8.unwrap_or(0),
+            i16: self.i16.unwrap_or(0),
+            i32: self.i32.unwrap_or(0),
+            i64: self.i64.unwrap_or(0),
+            i128: self.i128.unwrap_or(0),
+            u8: self.u8.unwrap_or(0),
+            u16: self.u16.unwrap_or(0),
+            u32: self.u32.unwrap_or(0),
+            u64: self.u64.unwrap_or(0),
+            u128: self.u128.unwrap_or(0),
+            f32: self.f32.unwrap_or(0),
+            f64: self.f64.unwrap_or(0),
+        }
+    }
+}
+
+impl From<SmlHeaderBuilder> for SmlHeader {
+    fn from(builder: SmlHeaderBuilder) -> Self {
+        builder.to_sml_header()
     }
 }
