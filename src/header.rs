@@ -41,6 +41,62 @@ impl SmlHeader {
             f64: max(self.f64, other.f64),
         }
     }
+
+    pub(crate) fn bool_bits(&self) -> u8 {
+        self.bool
+    }
+
+    pub(crate) fn char_bits(&self) -> u8 {
+        self.char
+    }
+
+    pub(crate) fn i8_bits(&self) -> u8 {
+        self.i8
+    }
+
+    pub(crate) fn i16_bits(&self) -> u8 {
+        self.i16
+    }
+
+    pub(crate) fn i32_bits(&self) -> u8 {
+        self.i32
+    }
+
+    pub(crate) fn i64_bits(&self) -> u8 {
+        self.i64
+    }
+
+    pub(crate) fn i128_bits(&self) -> u8 {
+        self.i128
+    }
+
+    pub(crate) fn u8_bits(&self) -> u8 {
+        self.u8
+    }
+
+    pub(crate) fn u16_bits(&self) -> u8 {
+        self.u16
+    }
+
+    pub(crate) fn u32_bits(&self) -> u8 {
+        self.u32
+    }
+
+    pub(crate) fn u64_bits(&self) -> u8 {
+        self.u64
+    }
+
+    pub(crate) fn u128_bits(&self) -> u8 {
+        self.u128
+    }
+
+    pub(crate) fn f32_bits(&self) -> u8 {
+        self.f32
+    }
+
+    pub(crate) fn f64_bits(&self) -> u8 {
+        self.f64
+    }
 }
 
 impl ToBitStream for SmlHeader {
@@ -214,7 +270,7 @@ impl SmlHeaderBuilder {
         self
     }
 
-    pub fn to_sml_header(&self) -> SmlHeader {
+    pub fn build(&self) -> SmlHeader {
         SmlHeader {
             bool: 1,
             char: self.char.unwrap_or(0),
@@ -236,7 +292,7 @@ impl SmlHeaderBuilder {
 
 impl From<SmlHeaderBuilder> for SmlHeader {
     fn from(builder: SmlHeaderBuilder) -> Self {
-        builder.to_sml_header()
+        builder.build()
     }
 }
 
