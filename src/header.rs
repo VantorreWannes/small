@@ -46,6 +46,7 @@ impl ToBitStream for SmlHeader {
         writer.write(Self::BITS, self.u128)?;
         writer.write(Self::BITS, self.f32)?;
         writer.write(Self::BITS, self.f64)?;
+        writer.byte_align()?;
         Ok(())
     }
 }
@@ -53,26 +54,29 @@ impl ToBitStream for SmlHeader {
 impl FromBitStream for SmlHeader {
     type Error = std::io::Error;
 
-    fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(reader: &mut R) -> Result<Self, Self::Error>
     where
         Self: Sized,
     {
-        Ok(Self {
-            bool: r.read(Self::BITS)?,
-            char: r.read(Self::BITS)?,
-            i8: r.read(Self::BITS)?,
-            i16: r.read(Self::BITS)?,
-            i32: r.read(Self::BITS)?,
-            i64: r.read(Self::BITS)?,
-            i128: r.read(Self::BITS)?,
-            u8: r.read(Self::BITS)?,
-            u16: r.read(Self::BITS)?,
-            u32: r.read(Self::BITS)?,
-            u64: r.read(Self::BITS)?,
-            u128: r.read(Self::BITS)?,
-            f32: r.read(Self::BITS)?,
-            f64: r.read(Self::BITS)?,
-        })
+        let sml_header = Self {
+            bool: reader.read(Self::BITS)?,
+            char: reader.read(Self::BITS)?,
+            i8: reader.read(Self::BITS)?,
+            i16: reader.read(Self::BITS)?,
+            i32: reader.read(Self::BITS)?,
+            i64: reader.read(Self::BITS)?,
+            i128: reader.read(Self::BITS)?,
+            u8: reader.read(Self::BITS)?,
+            u16: reader.read(Self::BITS)?,
+            u32: reader.read(Self::BITS)?,
+            u64: reader.read(Self::BITS)?,
+            u128: reader.read(Self::BITS)?,
+            f32: reader.read(Self::BITS)?,
+            f64: reader.read(Self::BITS)?,
+        };
+        reader.byte_align();
+        Ok(sml_header)
+
     }
 }
 
@@ -218,6 +222,10 @@ impl From<SmlHeaderBuilder> for SmlHeader {
 
 #[cfg(test)]
 mod sml_header_tests {
+    use std::io::{self, Cursor};
+
+    use bitstream_io::{BigEndian, BitRead, BitReader, BitWrite, BitWriter};
+
     use super::*;
 
     #[test]
@@ -245,5 +253,24 @@ mod sml_header_tests {
                 f64: 0,
             }
         );
+    }
+
+    #[test]
+    fn sml_header_write() -> io::Result<()> {
+        let sml_header: SmlHeader = SmlHeader::default();
+        let mut data = Vec::new();
+        let mut writer = BitWriter::endian(Cursor::new(&mut data), BigEndian);
+        writer.build(&sml_header)?;
+        assert_eq!(&data, &[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        Ok(())
+    }
+
+    #[test]
+    fn sml_header_read() -> io::Result<()> {
+        let data = &[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let mut cursor = Cursor::new(data);
+        let mut reader = BitReader::endian(&mut cursor, BigEndian);
+        assert_eq!(reader.parse::<SmlHeader>()?, SmlHeader::default());
+        Ok(())
     }
 }
