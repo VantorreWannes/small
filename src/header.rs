@@ -1,4 +1,5 @@
 use std::cmp::max;
+use paste::paste;
 
 use bitstream_io::{FromBitStream, ToBitStream};
 
@@ -41,63 +42,34 @@ impl SmlHeader {
             f64: max(self.f64, other.f64),
         }
     }
-
-    pub(crate) fn bool_bits(&self) -> u8 {
-        self.bool
-    }
-
-    pub(crate) fn char_bits(&self) -> u8 {
-        self.char
-    }
-
-    pub(crate) fn i8_bits(&self) -> u8 {
-        self.i8
-    }
-
-    pub(crate) fn i16_bits(&self) -> u8 {
-        self.i16
-    }
-
-    pub(crate) fn i32_bits(&self) -> u8 {
-        self.i32
-    }
-
-    pub(crate) fn i64_bits(&self) -> u8 {
-        self.i64
-    }
-
-    pub(crate) fn i128_bits(&self) -> u8 {
-        self.i128
-    }
-
-    pub(crate) fn u8_bits(&self) -> u8 {
-        self.u8
-    }
-
-    pub(crate) fn u16_bits(&self) -> u8 {
-        self.u16
-    }
-
-    pub(crate) fn u32_bits(&self) -> u8 {
-        self.u32
-    }
-
-    pub(crate) fn u64_bits(&self) -> u8 {
-        self.u64
-    }
-
-    pub(crate) fn u128_bits(&self) -> u8 {
-        self.u128
-    }
-
-    pub(crate) fn f32_bits(&self) -> u8 {
-        self.f32
-    }
-
-    pub(crate) fn f64_bits(&self) -> u8 {
-        self.f64
-    }
 }
+
+macro_rules! impl_get_bit_size {
+    ($t:ty) => {
+        paste! {
+            impl SmlHeader {
+                pub fn [<$t _bits>](&self) -> u8 {
+                    self.$t
+                }
+            }
+        }
+    };
+}
+
+impl_get_bit_size!(bool);
+impl_get_bit_size!(char);
+impl_get_bit_size!(i8);
+impl_get_bit_size!(i16);
+impl_get_bit_size!(i32);
+impl_get_bit_size!(i64);
+impl_get_bit_size!(i128);
+impl_get_bit_size!(u8);
+impl_get_bit_size!(u16);
+impl_get_bit_size!(u32);
+impl_get_bit_size!(u64);
+impl_get_bit_size!(u128);
+impl_get_bit_size!(f32);
+impl_get_bit_size!(f64);
 
 impl ToBitStream for SmlHeader {
     type Error = std::io::Error;
@@ -192,84 +164,6 @@ impl SmlHeaderBuilder {
         }
     }
 
-    pub fn with_char_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.char = Some(bits);
-        self
-    }
-
-    pub fn with_i8_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.i8 = Some(bits);
-        self
-    }
-
-    pub fn with_i16_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.i16 = Some(bits);
-        self
-    }
-
-    pub fn with_i32_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.i32 = Some(bits);
-        self
-    }
-
-    pub fn with_i64_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.i64 = Some(bits);
-        self
-    }
-
-    pub fn with_i128_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.i128 = Some(bits);
-        self
-    }
-
-    pub fn with_u8_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.u8 = Some(bits);
-        self
-    }
-
-    pub fn with_u16_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.u16 = Some(bits);
-        self
-    }
-
-    pub fn with_u32_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.u32 = Some(bits);
-        self
-    }
-
-    pub fn with_u64_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.u64 = Some(bits);
-        self
-    }
-
-    pub fn with_u128_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.u128 = Some(bits);
-        self
-    }
-
-    pub fn with_f32_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.f32 = Some(bits);
-        self
-    }
-
-    pub fn with_f64_size(mut self, bits: u8) -> Self {
-        debug_assert!(bits <= 128);
-        self.f64 = Some(bits);
-        self
-    }
-
     pub fn build(&self) -> SmlHeader {
         SmlHeader {
             bool: 1,
@@ -290,6 +184,34 @@ impl SmlHeaderBuilder {
     }
 }
 
+macro_rules! impl_set_bit_size {
+    ($t:ty) => {
+        paste! {
+            impl SmlHeaderBuilder {
+                pub fn [<with_ $t _bits>](mut self, bits: u8) -> Self {
+                    debug_assert!(bits <= 128);
+                    self.$t = Some(bits);
+                    self
+                }
+            }
+        }
+    };
+}
+
+impl_set_bit_size!(char);
+impl_set_bit_size!(i8);
+impl_set_bit_size!(i16);
+impl_set_bit_size!(i32);
+impl_set_bit_size!(i64);
+impl_set_bit_size!(i128);
+impl_set_bit_size!(u8);
+impl_set_bit_size!(u16);
+impl_set_bit_size!(u32);
+impl_set_bit_size!(u64);
+impl_set_bit_size!(u128);
+impl_set_bit_size!(f32);
+impl_set_bit_size!(f64);
+
 impl From<SmlHeaderBuilder> for SmlHeader {
     fn from(builder: SmlHeaderBuilder) -> Self {
         builder.build()
@@ -307,8 +229,8 @@ mod sml_header_tests {
     #[test]
     fn sml_header_builder() {
         let sml_header: SmlHeader = SmlHeaderBuilder::new()
-            .with_char_size(10)
-            .with_u8_size(8)
+            .with_char_bits(10)
+            .with_u8_bits(8)
             .into();
         assert_eq!(
             sml_header,
