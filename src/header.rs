@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use bitstream_io::{FromBitStream, ToBitStream};
 
 #[derive(Debug, PartialEq, Eq, Clone, Default)]
@@ -20,6 +22,25 @@ pub struct SmlHeader {
 
 impl SmlHeader {
     const BITS: u32 = u8::BITS - 1;
+
+    pub(crate) fn combine(&self, other: &SmlHeader) -> SmlHeader {
+        SmlHeader {
+            bool: max(self.bool, other.bool),
+            char: max(self.char, other.char),
+            i8: max(self.i8, other.i8),
+            i16: max(self.i16, other.i16),
+            i32: max(self.i32, other.i32),
+            i64: max(self.i64, other.i64),
+            i128: max(self.i128, other.i128),
+            u8: max(self.u8, other.u8),
+            u16: max(self.u16, other.u16),
+            u32: max(self.u32, other.u32),
+            u64: max(self.u64, other.u64),
+            u128: max(self.u128, other.u128),
+            f32: max(self.f32, other.f32),
+            f64: max(self.f64, other.f64),
+        }
+    }
 }
 
 impl ToBitStream for SmlHeader {
