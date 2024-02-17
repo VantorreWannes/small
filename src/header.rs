@@ -20,7 +20,8 @@ pub struct SmlHeader {
 }
 
 impl SmlHeader {
-    const BITS: u32 = u8::BITS - 1;
+    const TYPE_MIN_BITS: u32 = u8::BITS - 1;
+    pub const TYPE_IDENT_BITS: u8 = 4;
     pub const BOOL_IDENT: u8 = 0;
     pub const U8_IDENT: u8 = 1;
     pub const U16_IDENT: u8 = 2;
@@ -93,18 +94,18 @@ impl ToBitStream for SmlHeader {
     where
         Self: Sized,
     {
-        writer.write(Self::BITS, self.bool)?;
-        writer.write(Self::BITS, self.char)?;
-        writer.write(Self::BITS, self.i8)?;
-        writer.write(Self::BITS, self.i16)?;
-        writer.write(Self::BITS, self.i32)?;
-        writer.write(Self::BITS, self.i64)?;
-        writer.write(Self::BITS, self.i128)?;
-        writer.write(Self::BITS, self.u8)?;
-        writer.write(Self::BITS, self.u16)?;
-        writer.write(Self::BITS, self.u32)?;
-        writer.write(Self::BITS, self.u64)?;
-        writer.write(Self::BITS, self.u128)?;
+        writer.write(Self::TYPE_MIN_BITS, self.bool)?;
+        writer.write(Self::TYPE_MIN_BITS, self.char)?;
+        writer.write(Self::TYPE_MIN_BITS, self.i8)?;
+        writer.write(Self::TYPE_MIN_BITS, self.i16)?;
+        writer.write(Self::TYPE_MIN_BITS, self.i32)?;
+        writer.write(Self::TYPE_MIN_BITS, self.i64)?;
+        writer.write(Self::TYPE_MIN_BITS, self.i128)?;
+        writer.write(Self::TYPE_MIN_BITS, self.u8)?;
+        writer.write(Self::TYPE_MIN_BITS, self.u16)?;
+        writer.write(Self::TYPE_MIN_BITS, self.u32)?;
+        writer.write(Self::TYPE_MIN_BITS, self.u64)?;
+        writer.write(Self::TYPE_MIN_BITS, self.u128)?;
         writer.byte_align()?;
         Ok(())
     }
@@ -118,18 +119,18 @@ impl FromBitStream for SmlHeader {
         Self: Sized,
     {
         let sml_header = Self {
-            bool: reader.read(Self::BITS)?,
-            char: reader.read(Self::BITS)?,
-            i8: reader.read(Self::BITS)?,
-            i16: reader.read(Self::BITS)?,
-            i32: reader.read(Self::BITS)?,
-            i64: reader.read(Self::BITS)?,
-            i128: reader.read(Self::BITS)?,
-            u8: reader.read(Self::BITS)?,
-            u16: reader.read(Self::BITS)?,
-            u32: reader.read(Self::BITS)?,
-            u64: reader.read(Self::BITS)?,
-            u128: reader.read(Self::BITS)?,
+            bool: reader.read(Self::TYPE_MIN_BITS)?,
+            char: reader.read(Self::TYPE_MIN_BITS)?,
+            i8: reader.read(Self::TYPE_MIN_BITS)?,
+            i16: reader.read(Self::TYPE_MIN_BITS)?,
+            i32: reader.read(Self::TYPE_MIN_BITS)?,
+            i64: reader.read(Self::TYPE_MIN_BITS)?,
+            i128: reader.read(Self::TYPE_MIN_BITS)?,
+            u8: reader.read(Self::TYPE_MIN_BITS)?,
+            u16: reader.read(Self::TYPE_MIN_BITS)?,
+            u32: reader.read(Self::TYPE_MIN_BITS)?,
+            u64: reader.read(Self::TYPE_MIN_BITS)?,
+            u128: reader.read(Self::TYPE_MIN_BITS)?,
         };
         reader.byte_align();
         Ok(sml_header)
