@@ -1,5 +1,4 @@
 use std::cmp::max;
-use paste::paste;
 
 use bitstream_io::{FromBitStream, ToBitStream};
 
@@ -173,6 +172,84 @@ impl SmlHeaderBuilder {
         }
     }
 
+    pub fn with_char_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.char = Some(bits);
+        self
+    }
+
+    pub fn with_i8_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.i8 = Some(bits);
+        self
+    }
+
+    pub fn with_i16_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.i16 = Some(bits);
+        self
+    }
+
+    pub fn with_i32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.i32 = Some(bits);
+        self
+    }
+
+    pub fn with_i64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.i64 = Some(bits);
+        self
+    }
+
+    pub fn with_i128_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.i128 = Some(bits);
+        self
+    }
+
+    pub fn with_u8_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.u8 = Some(bits);
+        self
+    }
+
+    pub fn with_u16_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.u16 = Some(bits);
+        self
+    }
+
+    pub fn with_u32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.u32 = Some(bits);
+        self
+    }
+
+    pub fn with_u64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.u64 = Some(bits);
+        self
+    }
+
+    pub fn with_u128_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.u128 = Some(bits);
+        self
+    }
+
+    pub fn with_f32_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.f32 = Some(bits);
+        self
+    }
+
+    pub fn with_f64_size(mut self, bits: u8) -> Self {
+        debug_assert!(bits <= 128);
+        self.f64 = Some(bits);
+        self
+    }
+
     pub fn build(&self) -> SmlHeader {
         SmlHeader {
             bool: 1,
@@ -234,8 +311,8 @@ mod sml_header_tests {
     #[test]
     fn sml_header_builder() {
         let sml_header: SmlHeader = SmlHeaderBuilder::new()
-            .with_char_bits(10)
-            .with_u8_bits(8)
+            .with_char_size(10)
+            .with_u8_size(8)
             .into();
         assert_eq!(
             sml_header,
