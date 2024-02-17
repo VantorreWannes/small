@@ -5,22 +5,22 @@ use std::io;
 
 use crate::header::SmlHeader;
 
-pub(crate) trait ToSmlStream {
-    fn sml_header(&self) -> SmlHeader;
-    fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()>;
+pub(crate) trait SmlPrimitiveToStream {
+    fn primitive_sml_header(&self) -> SmlHeader;
+    fn sml_write_value<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()>;
 }
 
 macro_rules! impl_to_sml_stream {
     ($t:ty) => {
-        impl ToSmlStream for $t {
-            fn sml_header(&self) -> SmlHeader {
+        impl SmlPrimitiveToStream for $t {
+            fn primitive_sml_header(&self) -> SmlHeader {
                 let size = (Self::BITS as Self - self.leading_zeros() as Self) as u8;
                 paste! {
                     SmlHeaderBuilder::new().[<with_ $t _bits>](size).build()
                 }
             }
 
-            fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
+            fn sml_write_value<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
                 paste! {
                     writer.write(header.[<$t _bits>]().into(), *self)?;
                 }
