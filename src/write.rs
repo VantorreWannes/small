@@ -114,8 +114,9 @@ impl ToSmlStream for i16 {
 
     fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
         const I8_MAX: i16 = i8::MAX as i16;
+        const I8_MIN: i16 = i8::MIN as i16;
         match self {
-            ..=I8_MAX => (*self as i8).sml_write(writer, header), 
+            I8_MIN..=I8_MAX => (*self as i8).sml_write(writer, header), 
             _ => writer.write(header.i16_bits().into(), *self)
         }
         
@@ -131,10 +132,12 @@ impl ToSmlStream for i32 {
 
     fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
         const I8_MAX: i32 = i8::MAX as i32;
+        const I8_MIN: i32 = i8::MIN as i32;
         const I16_MAX: i32 = i16::MAX as i32;
+        const I16_MIN: i32 = i16::MIN as i32;
         match self {
-            ..=I8_MAX => (*self as i8).sml_write(writer, header),
-            ..=I16_MAX => (*self as i16).sml_write(writer, header),
+            I8_MIN..=I8_MAX => (*self as i8).sml_write(writer, header),
+            I16_MIN..=I16_MAX => (*self as i16).sml_write(writer, header),
             _ => writer.write(header.i16_bits().into(), *self)
         }
     }
@@ -149,12 +152,15 @@ impl ToSmlStream for i64 {
 
     fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
         const I8_MAX: i64 = i8::MAX as i64;
-        const I16_MAX: i64 = i16::MAX as i64;
+        const I8_MIN: i64 = i8::MIN as i64;
+        const I16_MAX: i64= i16::MAX as i64;
+        const I16_MIN: i64= i16::MIN as i64;
         const I32_MAX: i64 = i32::MAX as i64;
+        const I32_MIN: i64 = i32::MIN as i64;
         match self {
-            ..=I8_MAX => (*self as i8).sml_write(writer, header),
-            ..=I16_MAX => (*self as i16).sml_write(writer, header),
-            ..=I32_MAX => (*self as i32).sml_write(writer, header),
+            I8_MIN..=I8_MAX => (*self as i8).sml_write(writer, header),
+            I16_MIN..=I16_MAX => (*self as i16).sml_write(writer, header),
+            I32_MIN..=I32_MAX => (*self as i32).sml_write(writer, header),
             _ => writer.write(header.i64_bits().into(), *self)
         }
     }
@@ -169,15 +175,20 @@ impl ToSmlStream for i128 {
 
     fn sml_write<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
         const I8_MAX: i128 = i8::MAX as i128;
-        const I16_MAX: i128 = i16::MAX as i128;
+        const I8_MIN: i128 = i8::MIN as i128;
+        const I16_MAX: i128= i16::MAX as i128;
+        const I16_MIN: i128= i16::MIN as i128;
         const I32_MAX: i128 = i32::MAX as i128;
+        const I32_MIN: i128 = i32::MIN as i128;
         const I64_MAX: i128 = i64::MAX as i128;
+        const I64_MIN: i128 = i64::MAX as i128;
         match self {
-            ..=I8_MAX => (*self as i8).sml_write(writer, header),
-            ..=I16_MAX => (*self as i16).sml_write(writer, header),
-            ..=I32_MAX => (*self as i32).sml_write(writer, header),
-            ..=I64_MAX => (*self as i64).sml_write(writer, header),
+            I8_MIN..=I8_MAX => (*self as i8).sml_write(writer, header),
+            I16_MIN..=I16_MAX => (*self as i16).sml_write(writer, header),
+            I32_MIN..=I32_MAX => (*self as i32).sml_write(writer, header),
+            I64_MIN..=I64_MAX => (*self as i64).sml_write(writer, header),
             _ => writer.write(header.i128_bits().into(), *self)
         }
     }
 }
+
