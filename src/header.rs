@@ -1,5 +1,5 @@
 use std::cmp::max;
-
+use paste::paste;
 use bitstream_io::{FromBitStream, ToBitStream};
 
 #[derive(Debug, PartialEq, Eq, Clone, Default, Copy)]
