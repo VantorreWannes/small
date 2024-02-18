@@ -1,10 +1,9 @@
-use crate::header::SmlHeader;
 use bitstream_io::BitWrite;
 use paste::paste;
 use std::io;
 
 pub(crate) trait WriteSml {
-    fn sml_write_value<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()>;
+    fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()>;
 }
 
 macro_rules! impl_to_sml_stream {
@@ -13,7 +12,6 @@ macro_rules! impl_to_sml_stream {
             fn sml_write_value<W: BitWrite>(
                 &self,
                 writer: &mut W,
-                header: &SmlHeader,
             ) -> io::Result<()> {
                 paste! {
                     writer.write(header.[<$t _bits>]().into(), *self)?;
@@ -41,7 +39,7 @@ impl WriteSml for bool {
             true => 1,
             false => 0,
         };
-        writer.write(header.bool_bits().into(), self_bits)?;
+        writer.write(1, self_bits)?;
         Ok(())
     }
 }

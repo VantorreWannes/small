@@ -1,4 +1,3 @@
-pub mod header;
 pub mod write;
 
 #[cfg(test)]
