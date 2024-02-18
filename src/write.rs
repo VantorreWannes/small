@@ -1,80 +1,40 @@
 use bitstream_io::BitWrite;
-use paste::paste;
 use std::io;
 
-pub(crate) trait WriteSml {
+use crate::TYPE_BIT_SIZE;
+
+pub trait WriteSml {
     fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()>;
+    fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()>;
+    fn sml_write<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        self.sml_write_type(writer)?;
+        self.sml_write_value(writer)
+    }
 }
-
-macro_rules! impl_to_sml_stream {
-    ($t:ty) => {
-        impl WriteSml for $t {
-            fn sml_write_value<W: BitWrite>(
-                &self,
-                writer: &mut W,
-            ) -> io::Result<()> {
-                paste! {
-                    writer.write(header.[<$t _bits>]().into(), *self)?;
-                }
-                Ok(())
-            }
-        }
-    };
-}
-
-impl_to_sml_stream!(u8);
-impl_to_sml_stream!(u16);
-impl_to_sml_stream!(u32);
-impl_to_sml_stream!(u64);
-impl_to_sml_stream!(u128);
-impl_to_sml_stream!(i8);
-impl_to_sml_stream!(i16);
-impl_to_sml_stream!(i32);
-impl_to_sml_stream!(i64);
-impl_to_sml_stream!(i128);
 
 impl WriteSml for bool {
-    fn sml_write_value<W: BitWrite>(&self, writer: &mut W, header: &SmlHeader) -> io::Result<()> {
-        let self_bits: u8 = match self {
+    fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        let value: u8 = match self {
             true => 1,
             false => 0,
         };
-        writer.write(1, self_bits)?;
-        Ok(())
+        writer.write(1, value)
+    }
+
+    fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        writer.write(TYPE_BIT_SIZE.into(), 0u8)
     }
 }
 
-#[cfg(test)]
-mod sml_write_primitive_tests {
-    use super::*;
-    use bitstream_io::{BigEndian, BitWriter};
-    macro_rules! write_test_sml_write_value {
-        ($t:ty) => {
-            paste! {
-                #[test]
-                fn [<$t _sml_write_value>]() -> io::Result<()> {
-                    let header = SmlHeader::default();
-                    let mut data = vec![];
-                    let mut writer = BitWriter::endian(&mut data, BigEndian);
-                    let value: $t = $t::default();
-                    value.sml_write_value(&mut writer, &header)?;
-                    writer.flush()?;
-                    assert_eq!(data, vec![0; header.[<$t _bits>]() as usize / 8]);
-                    Ok(())
-                }
-            }
-        };
+impl WriteSml for char {
+    fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        let mut bytes = vec![0u8; self.len_utf8()];
+        self.encode_utf8(&mut bytes);
+        writer.write(2, (self.len_utf8() - 1) as u8)?;
+        writer.write_bytes(&bytes)
     }
 
-    write_test_sml_write_value!(bool);
-    write_test_sml_write_value!(u8);
-    write_test_sml_write_value!(u16);
-    write_test_sml_write_value!(u32);
-    write_test_sml_write_value!(u64);
-    write_test_sml_write_value!(u128);
-    write_test_sml_write_value!(i8);
-    write_test_sml_write_value!(i16);
-    write_test_sml_write_value!(i32);
-    write_test_sml_write_value!(i64);
-    write_test_sml_write_value!(i128);
+    fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        writer.write(TYPE_BIT_SIZE.into(), 1u8)
+    }
 }

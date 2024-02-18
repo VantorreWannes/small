@@ -1,5 +1,8 @@
 pub mod write;
 
+
+pub(crate) const TYPE_BIT_SIZE: u8 = 3;
+
 #[cfg(test)]
 mod tests {
     use super::*;
