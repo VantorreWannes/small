@@ -1,66 +1,40 @@
 # small
 File format for storing lots of data in a super small format. Slow to read and write.
 
-## .sml type layout
+## .sml types
 ```
 bool: 1 bit,
-u8: x bits,
-u16: x bits,
-u32: x bits,
-u64: x bits,
-u128: x bits,
-i8: x bits,
-i16: x bits,
-i32: x bits,
-i64: x bits,
-i128: x bits,
-char: [u8, u8],
-array<x>: [x; u8],
-float: {bool, e, m},
-struct<x, y, z>: {x, y, z},
-option<x>: {bool, x} || {bool},
-EOS: 16,
+char: [8 bits; 2 bits],
+number: (bool, [8 bits; 2 bits]),
+float: (bool, e, m),
+option<y>: (bool, y) || (bool),
+array<y>: [y; number],
+struct<a, b, c>: (bool, a, b, c, bool),
 ```
+
+### special type rules
+- When a type is used inside an array, the its type is usually declared only once at the start of the array.
+- If a array's length is set to 0 then the next item that follows after the array is a continuation of that array.
+- If a type is used inside a struct then its type is repeated each time it occurs in a field.
+
+### .sml item layout
+[type, variant, value]
 
 ## Example file layout
 ```
-u8: x bits,
-u16: x bits,
-u32: x bits,
-u64: x bits,
-u128: x bits,
-i8: x bits,
-i16: x bits,
-i32: x bits,
-i64: x bits,
-i128: x bits,
----
 {
-    bool,
-    [char; u8],
-    [char; u8],
-    [char; u8],
-    [
-        {
-            bool,
-            [char; u8],
-            [char; u8],
-            option<f32>,
-        },
-        {
-            bool,
-            [char; u8],
-            [char; u8],
-            option<f32>,
-        },
-        {
-            bool,
-            [char; u8],
-            [char; u8],
-            option<f32>,
-        },
-        u8,
-    ]
-    option<{[char; u8], i16}>
+    number
+    array<char>,
+    array<
+            struct<
+                float, 
+                option<
+                    array<number>
+                >, 
+                array<char>
+            >;
+        number
+    >,
+    
 }
 ```
