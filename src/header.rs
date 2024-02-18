@@ -1,8 +1,8 @@
-use std::cmp::max;
-use paste::paste;
 use bitstream_io::{FromBitStream, ToBitStream};
+use paste::paste;
+use std::{char, cmp::max};
 
-#[derive(Debug, PartialEq, Eq, Clone, Default, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct SmlHeader {
     bool: u8,
     u8: u8,
@@ -19,7 +19,7 @@ pub struct SmlHeader {
 }
 
 impl SmlHeader {
-    const TYPE_MIN_BITS: u32 = u8::BITS - 1;
+    pub(crate) const TYPE_MIN_BITS: u32 = u8::BITS - 1;
     pub const TYPE_IDENT_BITS: u8 = 4;
     pub const BOOL_IDENT: u8 = 0;
     pub const U8_IDENT: u8 = 1;
@@ -33,12 +33,11 @@ impl SmlHeader {
     pub const I64_IDENT: u8 = 9;
     pub const I128_IDENT: u8 = 10;
     pub const CHAR_IDENT: u8 = 11;
-    pub const FLOAT_IDENT: u8 = 12;
-    pub const ARRAY_IDENT: u8 = 13;
+    pub const ARRAY_IDENT: u8 = 12;
+    pub const FLOAT_IDENT: u8 = 13;
     pub const STRUCT_IDENT: u8 = 14;
     pub const OPTION_IDENT: u8 = 15;
     pub const EOS_IDENT: u8 = 16;
-
 
     pub(crate) fn combine(&self, other: &SmlHeader) -> SmlHeader {
         SmlHeader {
@@ -54,6 +53,25 @@ impl SmlHeader {
             u32: max(self.u32, other.u32),
             u64: max(self.u64, other.u64),
             u128: max(self.u128, other.u128),
+        }
+    }
+}
+
+impl Default for SmlHeader {
+    fn default() -> Self {
+        Self {
+            bool: 1,
+            char: 2,
+            i8: i8::BITS as u8,
+            i16: i16::BITS as u8,
+            i32: i32::BITS as u8,
+            i64: i64::BITS as u8,
+            i128: i128::BITS as u8,
+            u8: u8::BITS as u8,
+            u16: u16::BITS as u8,
+            u32: u32::BITS as u8,
+            u64: u64::BITS as u8,
+            u128: u128::BITS as u8,
         }
     }
 }
@@ -175,17 +193,17 @@ impl SmlHeaderBuilder {
     pub fn build(&self) -> SmlHeader {
         SmlHeader {
             bool: 1,
-            char: self.char.unwrap_or(0),
-            i8: self.i8.unwrap_or(0),
-            i16: self.i16.unwrap_or(0),
-            i32: self.i32.unwrap_or(0),
-            i64: self.i64.unwrap_or(0),
-            i128: self.i128.unwrap_or(0),
-            u8: self.u8.unwrap_or(0),
-            u16: self.u16.unwrap_or(0),
-            u32: self.u32.unwrap_or(0),
-            u64: self.u64.unwrap_or(0),
-            u128: self.u128.unwrap_or(0),
+            char: self.char.unwrap_or(2),
+            i8: self.i8.unwrap_or(i8::BITS as u8),
+            i16: self.i16.unwrap_or(i16::BITS as u8),
+            i32: self.i32.unwrap_or(i32::BITS as u8),
+            i64: self.i64.unwrap_or(i64::BITS as u8),
+            i128: self.i128.unwrap_or(i128::BITS as u8),
+            u8: self.u8.unwrap_or(u8::BITS as u8),
+            u16: self.u16.unwrap_or(u16::BITS as u8),
+            u32: self.u32.unwrap_or(u32::BITS as u8),
+            u64: self.u64.unwrap_or(u64::BITS as u8),
+            u128: self.u128.unwrap_or(u128::BITS as u8),
         }
     }
 }
