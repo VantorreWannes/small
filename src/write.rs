@@ -153,7 +153,7 @@ macro_rules! impl_write_sml_for_text {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                <Vec<char>>::sml_write_type(writer)
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 6u8)
             }
         }
     };
@@ -277,8 +277,8 @@ mod write_sml_tests {
         let mut writer = BitWriter::endian(&mut data, BigEndian);
         String::sml_write_type(&mut writer)?;
         writer.byte_align()?;
-        //println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b10100100]);
+        println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b11000000]);
         Ok(())
     }
 

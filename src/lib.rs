@@ -1,6 +1,4 @@
 pub mod write;
-
-
 pub(crate) const TYPE_IDENT_BIT_SIZE: u8 = 3;
 
 #[cfg(test)]
@@ -26,7 +24,7 @@ mod tests {
         let text = "Hello my name is navoko";
         let mut data: Vec<u8> = vec![];
         let mut writer = BitWriter::endian(&mut data, BigEndian);
-        text.sml_write_value(&mut writer)?;
+        text.sml_write(&mut writer)?;
         writer.byte_align()?;
         dbg!(text.len());
         dbg!(&data, data.len());

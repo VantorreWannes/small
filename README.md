@@ -9,7 +9,9 @@ number: (bool, [4 bits; 3 bits]),
 float: (bool, float),
 option<y>: (bool, y) || (bool),
 array<y>: [y; number],
+string: array<char>,
 struct<a, b, c>: (number, a, b, c),
+enum<a, b, c>: (number, struct<a, b, c>),
 ```
 
 ### special type rules
