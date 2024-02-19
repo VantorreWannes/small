@@ -38,3 +38,54 @@ impl WriteSml for char {
         writer.write(TYPE_BIT_SIZE.into(), 1u8)
     }
 }
+
+#[cfg(test)]
+mod write_sml_tests {
+    use bitstream_io::{BigEndian, BitWriter};
+    use paste::paste;
+    use super::*;
+
+    macro_rules! test_write_value {
+        ($t:ty, $v:expr, $a:expr) => {
+            paste! {
+                #[test]
+                fn [<write_ $t _value_ $v>]() -> io::Result<()> {
+                    let mut data: Vec<u8> = vec![];
+                    let mut writer = BitWriter::endian(&mut data, BigEndian);
+                    $v.sml_write_value(&mut writer)?;
+                    writer.byte_align()?;
+                    //println!("{:08b}", &data[0]);
+                    //println!("{:08b}", &data[1]);
+                    assert_eq!(data, $a);
+                    Ok(())
+                }
+            }
+        };
+    }
+
+    macro_rules! test_write_type {
+        ($t:ty, $v:expr) => {
+            paste! {
+                #[test]
+                fn [<write_ $t _type>]() -> io::Result<()> {
+                    let mut data: Vec<u8> = vec![];
+                    let mut writer = BitWriter::endian(&mut data, BigEndian);
+                    $t::default().sml_write_type(&mut writer)?;
+                    writer.byte_align()?;
+                    //println!("{:08b}", &data[0]);
+                    assert_eq!(data, $v);
+                    Ok(())
+                }
+            }
+        };
+    }
+
+    test_write_type!(bool, vec![0b00000000]);
+    test_write_value!(bool, true, vec![0b10000000]);
+    test_write_value!(bool, false, vec![0b00000000]);
+    
+    test_write_type!(char, vec![0b10000000]);
+    test_write_value!(char, 'a', vec![0b00011000, 0b01000000]);
+
+    
+}

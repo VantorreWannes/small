@@ -12,7 +12,7 @@ mod tests {
         let test: u8 = 64;
         dbg!(test.leading_zeros());
         let value = 64;
-        println!("{:08b}", test | (value >> (8 - test.trailing_zeros())));
+        println!("{:08b}", b'a');
         println!("{}", test.trailing_zeros());
     }
 }

@@ -9,7 +9,7 @@ number: (bool, [4 bits; 3 bits]),
 float: (bool, e, m),
 option<y>: (bool, y) || (bool),
 array<y>: [y; number],
-struct<a, b, c>: (a, b, c, bool),
+struct<a, b, c>: (number, a, b, c),
 ```
 
 ### special type rules
@@ -35,7 +35,6 @@ struct<a, b, c>: (a, b, c, bool),
                 array<char>
             >;
         number
-    >,
-    
+    >,    
 }
 ```
