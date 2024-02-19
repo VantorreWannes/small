@@ -39,20 +39,56 @@ impl WriteSml for char {
     }
 }
 
-impl WriteSml for u8 {
-    fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
-        let nibbles = match self {
-            ..=7 => 1,
-            _ => 2,
-        };
-        writer.write(3, nibbles - 1)?;
-        writer.write(nibbles * 4, *self)
-    }
-
-    fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
-        writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
+fn nibbles_needed(value: u64) -> u8 {
+    if value == 0 {
+        1
+    } else {
+        (((u64::BITS - value.leading_zeros()) + 3) / 4) as u8
     }
 }
+
+macro_rules! impl_write_sml_for_unsigned {
+    ($t:ty) => {
+        impl WriteSml for $t {
+            fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+                let nibbles = nibbles_needed((*self).into());
+                false.sml_write_value(writer)?;
+                writer.write(3, nibbles - 1)?;
+                writer.write((nibbles * 4).into(), *self)
+            }
+        
+            fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
+            }
+        }
+    };
+}
+
+macro_rules! impl_write_sml_for_signed {
+    ($t:ty) => {
+        impl WriteSml for $t {
+            fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+                let nibbles = nibbles_needed((self.abs()) as u64);
+                (*self<0).sml_write_value(writer)?;
+                writer.write(3, nibbles - 1)?;
+                writer.write((nibbles * 4).into(), *self)
+            }
+        
+            fn sml_write_type<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
+            }
+        }
+    };
+}
+
+impl_write_sml_for_unsigned!(u8);
+impl_write_sml_for_unsigned!(u16);
+impl_write_sml_for_unsigned!(u32);
+impl_write_sml_for_unsigned!(u64);
+impl_write_sml_for_signed!(i8);
+impl_write_sml_for_signed!(i16);
+impl_write_sml_for_signed!(i32);
+impl_write_sml_for_signed!(i64);
 
 #[cfg(test)]
 mod write_sml_tests {
@@ -102,6 +138,5 @@ mod write_sml_tests {
     test_write_value!(char, 'a', vec![0b00011000, 0b01000000]);
 
     test_write_type!(u8, vec![0b00000010]);
-    test_write_value!(u8, 7, vec![0b00001110]);
-    test_write_value!(u8, 8, vec![0b00100001, 0b00000000]);
+    test_write_value!(u8, 16u8, vec![0b00010001, 0b00000000]);
 }

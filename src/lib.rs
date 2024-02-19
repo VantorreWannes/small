@@ -9,8 +9,9 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let test: u8 = 8;
+        let test: i16 = 16;
         println!("{:08b}", test);
-        println!("{}", (test.leading_zeros()-1)/4);
+        println!("{}", test.abs());
+        println!("{}", ((u16::BITS - test.leading_zeros())+3)/4);
     }
 }
