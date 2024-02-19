@@ -123,6 +123,21 @@ impl<T: WriteSml> WriteSml for Option<T> {
     }
 }
 
+impl<T: WriteSml> WriteSml for [T] {
+    fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+        (self.len() as u64).sml_write_value(writer)?;
+        for value in self {
+            value.sml_write_value(writer)?;
+        }
+        Ok(())
+    }
+
+    fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
+        writer.write(TYPE_IDENT_BIT_SIZE.into(), 5u8)?;
+        T::sml_write_type(writer)
+    }
+}
+
 #[cfg(test)]
 mod write_sml_tests {
     use super::*;

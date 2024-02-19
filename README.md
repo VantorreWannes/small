@@ -1,5 +1,5 @@
 # small
-File format for storing lots of data in a super small format. Slow to read and write.
+File format for storing lots of typed data in a small format. Slow to read and write.
 
 ## .sml types
 ```
