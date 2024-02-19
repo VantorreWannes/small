@@ -1,5 +1,5 @@
 use bitstream_io::BitWrite;
-use std::{fmt::Write, io};
+use std::io;
 
 use crate::TYPE_IDENT_BIT_SIZE;
 
@@ -147,7 +147,7 @@ mod write_sml_tests {
     }
 
     macro_rules! test_write_type {
-        ($t:ty, $v:expr) => {
+        ($t:ident, $v:expr) => {
             paste! {
                 #[test]
                 fn [<write_ $t _type>]() -> io::Result<()> {
@@ -182,7 +182,19 @@ mod write_sml_tests {
         let mut writer = BitWriter::endian(&mut data, BigEndian);
         Option::<bool>::sml_write_type(&mut writer)?;
         writer.byte_align()?;
-        println!("{:08b}", &data[0]);
+        //println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b10000000]);
+        Ok(())
+    }
+
+    #[test]
+    fn write_option_bool_value() -> io::Result<()> {
+        let mut data: Vec<u8> = vec![];
+        let mut writer = BitWriter::endian(&mut data, BigEndian);
+        Some(true).sml_write_value(&mut writer)?;
+        writer.byte_align()?;
+        //println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b00010001]);
         Ok(())
     }
 }
