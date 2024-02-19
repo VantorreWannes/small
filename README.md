@@ -6,7 +6,7 @@ File format for storing lots of data in a super small format. Slow to read and w
 bool: 1 bit,
 char: [8 bits; 2 bits],
 number: (bool, [4 bits; 3 bits]),
-float: (bool, e, m),
+float: (bool, float),
 option<y>: (bool, y) || (bool),
 array<y>: [y; number],
 struct<a, b, c>: (number, a, b, c),
