@@ -145,6 +145,23 @@ macro_rules! impl_write_sml_for_array {
 impl_write_sml_for_array!([T]);
 impl_write_sml_for_array!(Vec<T>);
 
+macro_rules! impl_write_sml_for_text {
+    ($t:ty) => {
+        impl WriteSml for $t {
+            fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
+                self.chars().collect::<Vec<char>>().sml_write_value(writer)
+            }
+
+            fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
+                <Vec<char>>::sml_write_type(writer)
+            }
+        }
+    };
+}
+
+impl_write_sml_for_text!(str);
+impl_write_sml_for_text!(String);
+
 #[cfg(test)]
 mod write_sml_tests {
     use super::*;
@@ -240,6 +257,30 @@ mod write_sml_tests {
         //println!("{:08b}", &data[0]);
         //println!("{:08b}", &data[1]);
         assert_eq!(data, vec![0b00000100, 0b11110000]);
+        Ok(())
+    }
+
+    #[test]
+    fn write_string_type() -> io::Result<()> {
+        let mut data: Vec<u8> = vec![];
+        let mut writer = BitWriter::endian(&mut data, BigEndian);
+        String::sml_write_type(&mut writer)?;
+        writer.byte_align()?;
+        //println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b10100100]);
+        Ok(())
+    }
+
+    #[test]
+    fn write_string_value() -> io::Result<()> {
+        let mut data: Vec<u8> = vec![];
+        let mut writer = BitWriter::endian(&mut data, BigEndian);
+        "a".sml_write_value(&mut writer)?;
+        writer.byte_align()?;
+        //println!("{:08b}", &data[0]);
+        //println!("{:08b}", &data[1]);
+        //println!("{:08b}", &data[2]);
+        assert_eq!(data, vec![0b00000001, 0b00011000, 0b01000000]);
         Ok(())
     }
 }
