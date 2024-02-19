@@ -227,13 +227,24 @@ mod write_sml_tests {
     }
 
     #[test]
-    fn write_option_value() -> io::Result<()> {
+    fn write_option_some_value() -> io::Result<()> {
         let mut data: Vec<u8> = vec![];
         let mut writer = BitWriter::endian(&mut data, BigEndian);
         Some(true).sml_write_value(&mut writer)?;
         writer.byte_align()?;
         //println!("{:08b}", &data[0]);
         assert_eq!(data, vec![0b00010001]);
+        Ok(())
+    }
+
+    #[test]
+    fn write_option_none_value() -> io::Result<()> {
+        let mut data: Vec<u8> = vec![];
+        let mut writer = BitWriter::endian(&mut data, BigEndian);
+        None::<bool>.sml_write_value(&mut writer)?;
+        writer.byte_align()?;
+        println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b00000000]);
         Ok(())
     }
 
