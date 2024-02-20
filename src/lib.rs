@@ -1,5 +1,9 @@
+use derive_sml::make_answer;
+
 pub mod write;
 pub(crate) const TYPE_IDENT_BIT_SIZE: u8 = 3;
+
+make_answer!();
 
 #[cfg(test)]
 mod tests {
@@ -28,6 +32,12 @@ mod tests {
         writer.byte_align()?;
         dbg!(text.len());
         dbg!(&data, data.len());
+        Ok(())
+    }
+
+    #[test]
+    fn test_struct_derive() -> io::Result<()> {
+        assert_eq!(42, answer());
         Ok(())
     }
 }
