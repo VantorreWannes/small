@@ -12,6 +12,18 @@ pub trait WriteSml {
     }
 }
 
+pub struct SmlVoid;
+
+impl WriteSml for SmlVoid {
+    fn sml_write_value<W: BitWrite>(&self, _: &mut W) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
+        writer.write(TYPE_IDENT_BIT_SIZE.into(), 0u8)
+    }
+}
+
 impl WriteSml for bool {
     fn sml_write_value<W: BitWrite>(&self, writer: &mut W) -> io::Result<()> {
         let value: u8 = match self {
@@ -22,7 +34,7 @@ impl WriteSml for bool {
     }
 
     fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-        writer.write(TYPE_IDENT_BIT_SIZE.into(), 0u8)
+        writer.write(TYPE_IDENT_BIT_SIZE.into(), 1u8)
     }
 }
 
@@ -35,7 +47,7 @@ impl WriteSml for char {
     }
 
     fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-        writer.write(TYPE_IDENT_BIT_SIZE.into(), 1u8)
+        writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
     }
 }
 
@@ -58,7 +70,7 @@ macro_rules! impl_write_sml_for_unsigned {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 3u8)
             }
         }
     };
@@ -75,7 +87,7 @@ macro_rules! impl_write_sml_for_signed {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                writer.write(TYPE_IDENT_BIT_SIZE.into(), 2u8)
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 3u8)
             }
         }
     };
@@ -99,7 +111,7 @@ macro_rules! impl_write_sml_for_float {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                writer.write(TYPE_IDENT_BIT_SIZE.into(), 3u8)
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 4u8)
             }
         }
     };
@@ -118,7 +130,7 @@ impl<T: WriteSml> WriteSml for Option<T> {
     }
 
     fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-        writer.write(TYPE_IDENT_BIT_SIZE.into(), 4u8)?;
+        writer.write(TYPE_IDENT_BIT_SIZE.into(), 5u8)?;
         T::sml_write_type(writer)
     }
 }
@@ -135,7 +147,7 @@ macro_rules! impl_write_sml_for_array {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                writer.write(TYPE_IDENT_BIT_SIZE.into(), 5u8)?;
+                writer.write(TYPE_IDENT_BIT_SIZE.into(), 6u8)?;
                 T::sml_write_type(writer)
             }
         }
@@ -153,7 +165,7 @@ macro_rules! impl_write_sml_for_text {
             }
 
             fn sml_write_type<W: BitWrite>(writer: &mut W) -> io::Result<()> {
-                writer.write(TYPE_IDENT_BIT_SIZE.into(), 6u8)
+                <Vec<char>>::sml_write_type(writer)
             }
         }
     };
@@ -202,17 +214,17 @@ mod write_sml_tests {
         };
     }
 
-    test_write_type!(bool, vec![0b00000000]);
+    test_write_type!(bool, vec![0b00100000]);
     test_write_value!(bool, true, vec![0b10000000]);
     test_write_value!(bool, false, vec![0b00000000]);
 
-    test_write_type!(char, vec![0b00100000]);
+    test_write_type!(char, vec![0b01000000]);
     test_write_value!(char, 'a', vec![0b00011000, 0b01000000]);
 
-    test_write_type!(u8, vec![0b01000000]);
+    test_write_type!(u8, vec![0b001100000]);
     test_write_value!(u8, 16u8, vec![0b00010001, 0b00000000]);
 
-    test_write_type!(i8, vec![0b01000000]);
+    test_write_type!(i8, vec![0b01100000]);
     test_write_value!(i8, 16, vec![0b00010001, 0b00000000]);
 
     #[test]
@@ -222,7 +234,7 @@ mod write_sml_tests {
         Option::<bool>::sml_write_type(&mut writer)?;
         writer.byte_align()?;
         //println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b10000000]);
+        assert_eq!(data, vec![0b10100100]);
         Ok(())
     }
 
@@ -233,7 +245,7 @@ mod write_sml_tests {
         Some(true).sml_write_value(&mut writer)?;
         writer.byte_align()?;
         //println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b00010001]);
+        assert_eq!(data, vec![0b00110011]);
         Ok(())
     }
 
@@ -244,7 +256,7 @@ mod write_sml_tests {
         None::<bool>.sml_write_value(&mut writer)?;
         writer.byte_align()?;
         println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b00000000]);
+        assert_eq!(data, vec![0b00100000]);
         Ok(())
     }
 
@@ -255,7 +267,7 @@ mod write_sml_tests {
         Vec::<bool>::sml_write_type(&mut writer)?;
         writer.byte_align()?;
         //println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b10100000]);
+        assert_eq!(data, vec![0b11000100]);
         Ok(())
     }
 
@@ -277,8 +289,8 @@ mod write_sml_tests {
         let mut writer = BitWriter::endian(&mut data, BigEndian);
         String::sml_write_type(&mut writer)?;
         writer.byte_align()?;
-        println!("{:08b}", &data[0]);
-        assert_eq!(data, vec![0b11000000]);
+        //println!("{:08b}", &data[0]);
+        assert_eq!(data, vec![0b11001000]);
         Ok(())
     }
 

@@ -3,15 +3,15 @@ File format for storing lots of typed data in a small format. Slow to read and w
 
 ## .sml types
 ```
+void: 0 bit,
 bool: 1 bit,
 char: [8 bits; 2 bits],
 number: (bool, [4 bits; 3 bits]),
 float: (bool, float),
 option<y>: (bool, y) || (bool),
 array<y>: [y; number],
-string: array<char>,
-struct<a, b, c>: (number, a, b, c),
-enum<a, b, c>: (number, struct<option<a>, option<b>, option<c>>),
+struct<a, b, c, ...>: (number, a, b, c),
+enum<number, a, b, c, ...>: (number, struct<void, void, a, b, void, c>),
 ```
 
 ### special type rules
@@ -25,15 +25,22 @@ enum<a, b, c>: (number, struct<option<a>, option<b>, option<c>>),
 ```
 {
     number
-    array<char>,
+    string,
     array<
-            struct<
-                float, 
-                option<
-                    array<number>
-                >, 
-                array<char>
-            >;
+        struct<
+            float, 
+            option<
+                array<number>
+            >,
+            array<float>
+        >,
+        struct<
+            float, 
+            option<
+                array<number>
+            >, 
+            array<float>
+        >;
         number
     >,    
 }
