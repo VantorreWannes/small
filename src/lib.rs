@@ -1,15 +1,13 @@
-use derive_sml::make_answer;
-
 pub mod write;
 pub(crate) const TYPE_IDENT_BIT_SIZE: u8 = 3;
 
-make_answer!();
 
 #[cfg(test)]
 mod tests {
     use std::io;
 
     use bitstream_io::{BigEndian, BitWrite, BitWriter};
+    use derive_sml::WriteSml;
 
     use self::write::WriteSml;
 
@@ -35,9 +33,21 @@ mod tests {
         Ok(())
     }
 
+    #[derive(WriteSml, Debug, Default)]
+    pub struct TestStruct {
+        a: u8,
+        b: u8,
+        c: bool,
+    }
+
     #[test]
-    fn test_struct_derive() -> io::Result<()> {
-        assert_eq!(42, answer());
+    fn test_derive() -> io::Result<()> {
+        let text = TestStruct::default();
+        let mut data: Vec<u8> = vec![];
+        let mut writer = BitWriter::endian(&mut data, BigEndian);
+        text.sml_write(&mut writer)?;
+        writer.byte_align()?;
+        dbg!(&data, data.len());
         Ok(())
     }
 }

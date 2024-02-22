@@ -12,9 +12,8 @@ pub trait WriteSml {
     }
 }
 
-pub struct SmlVoid;
 
-impl WriteSml for SmlVoid {
+impl WriteSml for () {
     fn sml_write_value<W: BitWrite>(&self, _: &mut W) -> io::Result<()> {
         Ok(())
     }
