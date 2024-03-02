@@ -11,7 +11,7 @@ float: (bool, float),
 option<y>: (bool, y) || (bool),
 array<y>: [y; number],
 struct<a, b, c, ...>: (number, a, b, c),
-enum<number, a, b, c, ...>: (number, struct<void, void, a, b, void, c>),
+enum<number, a, b, c, ...>: (number, struct<void, void, a, b, void, c>), //todo!
 ```
 
 ### special type rules
